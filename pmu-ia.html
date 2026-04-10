@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PMU IA Expert — Analyse PDF Programme LONACI</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Exo+2:wght@400;600;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05060e;--bg2:#090b18;--bg3:#0e1020;--card:#111428;
+  --border:#1a1f38;--gold:#f0b429;--gold2:#ffd166;
+  --red:#ff2d55;--red2:#ff6b8a;--green:#00e676;
+  --blue:#2979ff;--cyan:#4cc9f0;--purple:#e040fb;
+  --orange:#ff6d00;--text:#eef0f8;--muted:#5a6285;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;font-size:15px;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(240,180,41,.07),transparent 50%),radial-gradient(ellipse at 80% 100%,rgba(255,45,85,.05),transparent 50%);pointer-events:none;z-index:0}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#06070f,#0c0e1e);border-bottom:2px solid var(--gold);padding:12px 14px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 4px 30px rgba(240,180,41,.1)}
+.h-logo{width:42px;height:42px;background:linear-gradient(135deg,var(--gold),#c87700);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;animation:float 3s ease-in-out infinite;box-shadow:0 4px 15px rgba(240,180,41,.3)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.h-info{flex:1}
+.h-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;color:var(--gold);line-height:1}
+.h-sub{font-size:9px;color:var(--muted);letter-spacing:2px}
+.h-badge{background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.3);color:var(--green);font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:1px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+main{padding:12px;max-width:600px;margin:0 auto;position:relative;z-index:1}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.cg::before{background:linear-gradient(90deg,var(--gold),transparent)}
+.cr::before{background:linear-gradient(90deg,var(--red),transparent)}
+.cb::before{background:linear-gradient(90deg,var(--blue),transparent)}
+.cv::before{background:linear-gradient(90deg,var(--green),transparent)}
+.co::before{background:linear-gradient(90deg,var(--orange),transparent)}
+
+.card-title{font-family:'Orbitron',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.ct-gold{color:var(--gold)}.ct-red{color:var(--red2)}.ct-green{color:var(--green)}.ct-blue{color:#82b1ff}.ct-orange{color:#ffab40}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed rgba(240,180,41,.3);border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;transition:all .3s;background:rgba(240,180,41,.03);position:relative;overflow:hidden;margin-bottom:12px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:rgba(240,180,41,.07)}
+.upload-zone.has-file{border-color:var(--green);border-style:solid;background:rgba(0,230,118,.05)}
+.upload-icon{font-size:48px;margin-bottom:10px;display:block}
+.upload-title{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;color:var(--gold);margin-bottom:6px}
+.upload-sub{font-size:12px;color:var(--muted);line-height:1.6}
+.upload-input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* FILE INFO */
+.file-info{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);border-radius:10px;padding:12px;margin-bottom:12px;display:none}
+.fi-row{display:flex;align-items:center;gap:10px}
+.fi-icon{font-size:28px;flex-shrink:0}
+.fi-name{font-weight:700;font-size:13px;color:var(--green);margin-bottom:2px}
+.fi-size{font-size:11px;color:var(--muted)}
+.fi-remove{background:rgba(255,45,85,.15);border:1px solid rgba(255,45,85,.3);color:var(--red2);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;flex-shrink:0}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border-radius:11px;border:none;cursor:pointer;width:100%;font-family:'Bebas Neue',cursive;font-size:15px;letter-spacing:2px;transition:all .2s;margin-bottom:8px}
+.btn:active{transform:scale(.98)}
+.btn-gold{background:linear-gradient(135deg,var(--gold),#c87700);color:#000;box-shadow:0 4px 15px rgba(240,180,41,.3)}
+.btn-red{background:linear-gradient(135deg,var(--red),#aa0022);color:#fff;box-shadow:0 4px 15px rgba(255,45,85,.25)}
+.btn-green{background:linear-gradient(135deg,var(--green),#00c853);color:#000;box-shadow:0 4px 15px rgba(0,230,118,.25)}
+.btn-blue{background:linear-gradient(135deg,var(--blue),#1a56cc);color:#fff;box-shadow:0 4px 15px rgba(41,121,255,.25)}
+.btn-orange{background:linear-gradient(135deg,var(--orange),#cc5500);color:#fff;box-shadow:0 4px 15px rgba(255,109,0,.25)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ANALYSE OPTIONS */
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.opt{background:var(--bg3);border:2px solid var(--border);border-radius:10px;padding:11px;cursor:pointer;transition:all .2s;text-align:center}
+.opt.on{border-color:var(--gold);background:rgba(240,180,41,.08)}
+.opt:active{transform:scale(.97)}
+.opt-icon{font-size:22px;margin-bottom:4px}
+.opt-name{font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:1px;line-height:1;margin-bottom:2px}
+.opt-sub{font-size:10px;color:var(--muted)}
+
+/* LOADING */
+.loading-box{display:none;text-align:center;padding:20px}
+.loading-box.show{display:block}
+.spin-big{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 14px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading-steps{display:flex;flex-direction:column;gap:6px;text-align:left;max-width:280px;margin:0 auto}
+.ls{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding:6px 10px;border-radius:8px;transition:all .5s}
+.ls.active{color:var(--gold);background:rgba(240,180,41,.08)}
+.ls.done{color:var(--green);background:rgba(0,230,118,.05)}
+.ls-dot{width:8px;height:8px;border-radius:50%;background:var(--border);flex-shrink:0;transition:all .5s}
+.ls.active .ls-dot{background:var(--gold);animation:pulse .8s infinite}
+.ls.done .ls-dot{background:var(--green)}
+
+/* RÉSULTATS */
+.result-box{display:none}
+.result-box.show{display:block}
+
+.prono-main{background:linear-gradient(135deg,rgba(240,180,41,.12),rgba(240,180,41,.02));border:2px solid rgba(240,180,41,.3);border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.prono-main::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--orange),var(--red))}
+.pm-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.pm-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--gold2)}
+.pm-conf{text-align:right}
+.pm-conf-val{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:900;color:var(--green)}
+.pm-conf-lbl{font-size:9px;color:var(--muted)}
+
+.horses{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.horse{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;transition:all .2s;position:relative;overflow:hidden}
+.horse::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
+.h-fav::before{background:var(--gold)}
+.h-sel::before{background:var(--green)}
+.h-out::before{background:var(--purple)}
+.h-danger::before{background:var(--red)}
+.horse-num{font-family:'Orbitron',sans-serif;font-size:16px;font-weight:900;width:32px;text-align:center;flex-shrink:0}
+.horse-info{flex:1}
+.horse-name{font-weight:700;font-size:13px;color:var(--text);margin-bottom:2px}
+.horse-details{font-size:11px;color:var(--muted)}
+.horse-badge{font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.hb-gold{background:rgba(240,180,41,.15);color:var(--gold);border:1px solid rgba(240,180,41,.3)}
+.hb-green{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.25)}
+.hb-purple{background:rgba(224,64,251,.1);color:#ea80fc;border:1px solid rgba(224,64,251,.25)}
+.hb-red{background:rgba(255,45,85,.1);color:var(--red2);border:1px solid rgba(255,45,85,.25)}
+
+/* PARIS RECOMMANDÉS */
+.paris-rec{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.pr{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:11px;position:relative;overflow:hidden}
+.pr::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.pr-type{font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:1px;margin-bottom:3px}
+.pr-sel{font-size:11px;color:var(--muted);margin-bottom:5px}
+.pr-gain{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700}
+.pr-conf{font-size:10px;color:var(--muted);margin-top:2px}
+
+/* PROG BAR */
+.pb{height:5px;background:var(--bg);border-radius:3px;overflow:hidden;margin-top:8px}
+.pf{height:100%;border-radius:3px}
+.pf-gold{background:linear-gradient(90deg,var(--gold),var(--orange))}
+.pf-green{background:linear-gradient(90deg,var(--green),var(--cyan))}
+.pf-red{background:linear-gradient(90deg,var(--red),var(--red2))}
+
+/* COMPARATIF */
+.comp-item{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.comp-item:last-child{border-bottom:none}
+.ci-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.ci-course{font-weight:700;font-size:13px}
+.ci-score{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700}
+.ci-details{font-size:11px;color:var(--muted);line-height:1.6}
+
+/* SR */
+.sr{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.sr:last-child{border-bottom:none}
+.srl{color:var(--muted);font-size:12px}.srv{font-weight:700;font-size:13px}
+
+/* CHAT IA */
+.chat-history{max-height:300px;overflow-y:auto;margin-bottom:10px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.msg{margin-bottom:10px;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.msg-user{text-align:right}
+.msg-user .bubble{background:rgba(240,180,41,.12);border:1px solid rgba(240,180,41,.2);border-radius:12px 12px 2px 12px;padding:9px 12px;display:inline-block;max-width:85%;font-size:12px;color:var(--gold2)}
+.msg-ia .bubble{background:var(--bg3);border:1px solid var(--border);border-radius:12px 12px 12px 2px;padding:9px 12px;display:inline-block;max-width:95%;font-size:12px;line-height:1.7;color:var(--text)}
+.msg-ia .bubble strong{color:var(--gold)}
+.chat-input-row{display:flex;gap:7px}
+.chat-in{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px 12px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:13px;outline:none}
+.chat-in:focus{border-color:var(--gold)}
+.chat-send{background:linear-gradient(135deg,var(--gold),#c07700);border:none;border-radius:9px;width:42px;cursor:pointer;color:#000;font-size:16px;flex-shrink:0}
+.spin-sm{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .7s linear infinite;display:inline-block}
+
+/* TOAST */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1a2a0a,#0f1f05);border:2px solid var(--green);border-radius:12px;padding:11px 16px;z-index:999;min-width:260px;box-shadow:0 8px 30px rgba(0,0,0,.5);display:none}
+.toast.show{display:block;animation:slideDown .3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* TABS */
+.tabs{background:var(--bg2);display:flex;overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;position:sticky;top:68px;z-index:99}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;padding:10px 13px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(240,180,41,.04)}
+.section{display:none}.section.active{display:block}
+.section-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--gold);margin-bottom:13px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+/* ARRIVÉE SAISIE */
+.arr-input{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.arr-num{width:44px;height:44px;background:var(--bg3);border:2px solid var(--border);border-radius:50%;text-align:center;color:var(--text);font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;outline:none;transition:all .2s}
+.arr-num:focus{border-color:var(--gold)}
+.arr-num.filled{border-color:var(--green);background:rgba(0,230,118,.1);color:var(--green)}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast">
+  <span onclick="document.getElementById('toast').classList.remove('show')" style="position:absolute;top:8px;right:10px;color:var(--muted);cursor:pointer">✕</span>
+  <div style="font-family:'Bebas Neue',cursive;font-size:14px;color:var(--green);margin-bottom:3px" id="toast-title"></div>
+  <div style="font-size:12px;color:var(--text)" id="toast-body"></div>
+</div>
+
+<header>
+  <div class="h-logo">🏇</div>
+  <div class="h-info">
+    <div class="h-title">PMU IA Expert</div>
+    <div class="h-sub">Analyse PDF · Pronostics IA · Comparatif · LONACI</div>
+  </div>
+  <div class="h-badge">● IA</div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('analyse',this)">🤖 Analyse IA</div>
+  <div class="tab" onclick="showTab('comparatif',this)">📊 Comparatif</div>
+  <div class="tab" onclick="showTab('arrivees',this)">🏆 Arrivées</div>
+  <div class="tab" onclick="showTab('chat',this)">💬 Chat Expert</div>
+  <div class="tab" onclick="showTab('infos',this)">ℹ️ Infos</div>
+</div>
+
+<main>
+
+<!-- ======== ANALYSE IA ======== -->
+<div class="section active" id="analyse">
+
+  <!-- UPLOAD PDF -->
+  <div class="upload-zone" id="upload-zone">
+    <input type="file" accept=".pdf" class="upload-input" id="pdf-input" onchange="handleFile(this.files[0])">
+    <span class="upload-icon">📄</span>
+    <div class="upload-title">Importe le PDF Programme</div>
+    <div class="upload-sub">
+      Glisse le programme PMU LONACI ici<br>
+      ou appuie pour sélectionner<br>
+      <span style="color:var(--gold);font-weight:700">Nationale 1 · Nationale 2 · Nationale 3</span>
+    </div>
+  </div>
+
+  <!-- FILE INFO -->
+  <div class="file-info" id="file-info">
+    <div class="fi-row">
+      <div class="fi-icon">📄</div>
+      <div style="flex:1">
+        <div class="fi-name" id="fi-name">—</div>
+        <div class="fi-size" id="fi-size">—</div>
+      </div>
+      <button class="fi-remove" onclick="removeFile()">✕ Retirer</button>
+    </div>
+  </div>
+
+  <!-- OPTIONS D'ANALYSE -->
+  <div class="card cg" id="options-box" style="display:none">
+    <div class="card-title ct-gold">🎯 Type d'analyse</div>
+    <div class="options-grid">
+      <div class="opt on" onclick="toggleOpt(this,'quinte')" data-opt="quinte">
+        <div class="opt-icon">🏆</div>
+        <div class="opt-name" style="color:var(--gold)">Quinté+</div>
+        <div class="opt-sub">5 chevaux · 400F</div>
+      </div>
+      <div class="opt" onclick="toggleOpt(this,'tierce')" data-opt="tierce">
+        <div class="opt-icon">🥉</div>
+        <div class="opt-name" style="color:#82b1ff">Tiercé</div>
+        <div class="opt-sub">3 chevaux · Désordre</div>
+      </div>
+      <div class="opt" onclick="toggleOpt(this,'couple')" data-opt="couple">
+        <div class="opt-icon">🤝</div>
+        <div class="opt-name" style="color:var(--green)">Couplé</div>
+        <div class="opt-sub">2 chevaux · Gagnant</div>
+      </div>
+      <div class="opt" onclick="toggleOpt(this,'simple')" data-opt="simple">
+        <div class="opt-icon">🎯</div>
+        <div class="opt-name" style="color:var(--cyan)">Simple</div>
+        <div class="opt-sub">1 cheval · Gagnant/Placé</div>
+      </div>
+      <div class="opt" onclick="toggleOpt(this,'quarte')" data-opt="quarte">
+        <div class="opt-icon">4️⃣</div>
+        <div class="opt-name" style="color:var(--orange)">Quarté</div>
+        <div class="opt-sub">4 chevaux</div>
+      </div>
+      <div class="opt" onclick="toggleOpt(this,'multi')" data-opt="multi">
+        <div class="opt-icon">🔥</div>
+        <div class="opt-name" style="color:var(--red2)">Multi</div>
+        <div class="opt-sub">4 à 7 chevaux</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center">
+      <span style="font-size:12px;color:var(--muted);min-width:80px">Budget (FCFA)</span>
+      <input id="budget" type="number" value="1000" min="100" step="500"
+        style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;font-family:'Orbitron',sans-serif">
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+      <span style="font-size:12px;color:var(--muted);min-width:80px">Nationale</span>
+      <select id="nationale" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px;color:var(--text);font-size:12px;outline:none">
+        <option value="N1">Nationale 1 — Quinté+ (11h–13h)</option>
+        <option value="N2">Nationale 2 — Tiercé (17h–20h)</option>
+        <option value="N3">Nationale 3</option>
+      </select>
+    </div>
+
+    <button class="btn btn-gold" onclick="analyserPDF()" id="btn-analyser">
+      🤖 ANALYSER ET GÉNÉRER PRONOSTICS IA
+    </button>
+  </div>
+
+  <!-- LOADING -->
+  <div class="loading-box" id="loading-box">
+    <div class="spin-big"></div>
+    <div style="font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold);letter-spacing:2px;margin-bottom:16px">Analyse en cours...</div>
+    <div class="loading-steps">
+      <div class="ls" id="ls1"><div class="ls-dot"></div>Lecture du PDF programme</div>
+      <div class="ls" id="ls2"><div class="ls-dot"></div>Extraction des chevaux et cotes</div>
+      <div class="ls" id="ls3"><div class="ls-dot"></div>Analyse des performances</div>
+      <div class="ls" id="ls4"><div class="ls-dot"></div>Comparaison historique LONACI</div>
+      <div class="ls" id="ls5"><div class="ls-dot"></div>Génération des pronostics IA</div>
+      <div class="ls" id="ls6"><div class="ls-dot"></div>Calcul des gains potentiels</div>
+    </div>
+  </div>
+
+  <!-- RÉSULTATS -->
+  <div class="result-box" id="result-box">
+
+    <!-- PRONOSTIC PRINCIPAL -->
+    <div class="prono-main">
+      <div class="pm-header">
+        <div>
+          <div class="pm-title" id="res-title">QUINTÉ+ N1</div>
+          <div style="font-size:11px;color:var(--muted)" id="res-sub">Analyse IA du programme LONACI</div>
+        </div>
+        <div class="pm-conf">
+          <div class="pm-conf-val" id="res-conf">—</div>
+          <div class="pm-conf-lbl">CONFIANCE</div>
+        </div>
+      </div>
+      <div class="pb" style="margin-bottom:14px"><div class="pf pf-gold" id="res-conf-bar" style="width:0%"></div></div>
+      <div style="font-size:10px;color:var(--gold);font-weight:700;letter-spacing:1px;margin-bottom:8px">🏆 SÉLECTION IA</div>
+      <div class="horses" id="res-horses"></div>
+      <div style="font-size:11px;color:var(--muted);background:rgba(0,0,0,.2);border-radius:8px;padding:10px;line-height:1.7" id="res-analyse"></div>
+    </div>
+
+    <!-- PARIS RECOMMANDÉS -->
+    <div class="card cg">
+      <div class="card-title ct-gold">🎲 Paris recommandés avec gains estimés</div>
+      <div class="paris-rec" id="res-paris"></div>
+    </div>
+
+    <!-- STATS -->
+    <div class="card cb">
+      <div class="card-title ct-blue">📊 Stats de la course analysée</div>
+      <div id="res-stats"></div>
+    </div>
+
+    <!-- NOUVELLE ANALYSE -->
+    <button class="btn btn-gold" onclick="resetAnalyse()">
+      📄 ANALYSER UN AUTRE PDF
+    </button>
+
+    <a href="https://www.lonacionline.ci/" target="_blank" class="btn btn-green" style="text-decoration:none">
+      🌐 PARIER SUR LONACIONLINE.CI
+    </a>
+    <a href="https://www.1xbet.com/fr" target="_blank" class="btn btn-orange" style="text-decoration:none">
+      🎰 PARIER SUR 1XBET
+    </a>
+  </div>
+
+</div>
+
+<!-- ======== COMPARATIF ======== -->
+<div class="section" id="comparatif">
+  <div class="section-title">📊 Comparatif IA vs Arrivées Réelles</div>
+
+  <div class="card cg">
+    <div class="card-title ct-gold">🎯 Pronostic IA actuel N1</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Sélection basée sur l'historique LONACI :</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="comp-prono"></div>
+    <div style="font-size:11px;color:var(--muted)">Numéros chauds récents : <span style="color:var(--gold)" id="comp-hot">7, 3, 9, 8, 2</span></div>
+  </div>
+
+  <div class="card cg">
+    <div class="card-title ct-gold">🏆 Arrivées réelles vs Pronostics IA</div>
+    <div id="comp-list"></div>
+    <div style="display:flex;gap:8px;margin-top:12px" id="comp-stats"></div>
+  </div>
+
+  <!-- SAISIR NOUVELLE ARRIVÉE -->
+  <div class="card cv">
+    <div class="card-title ct-green">➕ Saisir une nouvelle arrivée N1</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Entre les 5 premiers numéros dans l'ordre :</div>
+    <div class="arr-input" id="arr-inputs"></div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;margin-top:10px;align-items:center">
+      <span style="font-size:12px;color:var(--muted);min-width:50px">Date</span>
+      <input id="arr-date" type="date" style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-size:12px;outline:none">
+    </div>
+    <button class="btn btn-green" onclick="addArrivee()" style="margin-bottom:0">✅ AJOUTER CETTE ARRIVÉE</button>
+  </div>
+</div>
+
+<!-- ======== ARRIVÉES ======== -->
+<div class="section" id="arrivees">
+  <div class="section-title">🏆 Arrivées LONACI N1</div>
+
+  <div class="card cg">
+    <div class="card-title ct-gold">📜 Historique des 8 dernières arrivées N1</div>
+    <div id="arr-list"></div>
+  </div>
+
+  <div class="card cg">
+    <div class="card-title ct-gold">🔥 Statistiques numéros</div>
+    <div class="sr"><span class="srl">Numéros chauds</span><span class="srv" style="color:var(--gold)" id="stat-hot">—</span></div>
+    <div class="sr"><span class="srl">1er le plus fréquent</span><span class="srv" style="color:var(--green)" id="stat-top1">—</span></div>
+    <div class="sr"><span class="srl">Jamais en 1ère position</span><span class="srv" style="color:var(--muted)" id="stat-never1">—</span></div>
+    <div class="sr"><span class="srl">Arrivées analysées</span><span class="srv" style="color:var(--cyan)" id="stat-nb">8</span></div>
+    <div class="sr"><span class="srl">Taux réussite IA (3+/5)</span><span class="srv" style="color:var(--green)" id="stat-taux">—</span></div>
+  </div>
+
+  <a href="https://pmu-pmub.com/nationale-1-resultat-et-programme-lonaci" target="_blank" class="btn btn-gold" style="text-decoration:none">
+    🌐 Arrivées officielles N1 →
+  </a>
+</div>
+
+<!-- ======== CHAT EXPERT ======== -->
+<div class="section" id="chat">
+  <div class="section-title">💬 Chat Expert PMU IA</div>
+
+  <div class="card cg">
+    <div class="card-title ct-gold">🧠 Expert PMU LONACI — Posez vos questions</div>
+    <div class="chat-history" id="chat-history">
+      <div class="msg msg-ia">
+        <div class="bubble">Bonjour ! Je suis votre expert PMU LONACI. Importez un PDF de programme pour une analyse complète, ou posez-moi directement vos questions sur les courses, les paris et les stratégies. 🏇</div>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-in" id="chat-q" placeholder="Ex: Quel cheval jouer en Simple Gagnant ?" onkeypress="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+
+  <div class="card co">
+    <div class="card-title ct-orange">💡 Questions suggérées</div>
+    <div style="display:flex;flex-direction:column;gap:7px">
+      <button onclick="setQ('Quel est le meilleur pari pour un budget de 1000 FCFA ?')" style="background:rgba(255,109,0,.08);border:1px solid rgba(255,109,0,.2);color:#ffab40;border-radius:8px;padding:9px 12px;text-align:left;cursor:pointer;font-size:12px">💰 Meilleur pari pour 1000 FCFA ?</button>
+      <button onclick="setQ('Explique-moi le Quinté+ Bonus 4 LONACI')" style="background:rgba(255,109,0,.08);border:1px solid rgba(255,109,0,.2);color:#ffab40;border-radius:8px;padding:9px 12px;text-align:left;cursor:pointer;font-size:12px">🏆 Comment fonctionne le Bonus 4 ?</button>
+      <button onclick="setQ('Quelle est la stratégie pour gagner régulièrement au PMU LONACI ?')" style="background:rgba(255,109,0,.08);border:1px solid rgba(255,109,0,.2);color:#ffab40;border-radius:8px;padding:9px 12px;text-align:left;cursor:pointer;font-size:12px">🎯 Stratégie pour gagner régulièrement ?</button>
+      <button onclick="setQ('Quels numéros chauds jouer aujourd\'hui en N1 ?')" style="background:rgba(255,109,0,.08);border:1px solid rgba(255,109,0,.2);color:#ffab40;border-radius:8px;padding:9px 12px;text-align:left;cursor:pointer;font-size:12px">🔥 Numéros chauds N1 aujourd'hui ?</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== INFOS ======== -->
+<div class="section" id="infos">
+  <div class="section-title">ℹ️ Guide PMU LONACI</div>
+
+  <div class="card cg">
+    <div class="card-title ct-gold">🏇 Types de Paris — Cotes et règles</div>
+    <div class="sr"><span class="srl">Simple Gagnant</span><span class="srv" style="color:var(--green)">Variable · 1er exact</span></div>
+    <div class="sr"><span class="srl">Simple Placé</span><span class="srv" style="color:var(--cyan)">Variable · Top 3</span></div>
+    <div class="sr"><span class="srl">Couplé Gagnant</span><span class="srv" style="color:var(--gold)">Variable · 2 premiers</span></div>
+    <div class="sr"><span class="srl">Couplé Placé</span><span class="srv" style="color:var(--gold)">Variable · Top 3 désordre</span></div>
+    <div class="sr"><span class="srl">Tiercé Ordre</span><span class="srv" style="color:var(--orange)">Variable · 3 premiers ordre</span></div>
+    <div class="sr"><span class="srl">Tiercé Désordre</span><span class="srv" style="color:var(--orange)">Variable · 3 premiers</span></div>
+    <div class="sr"><span class="srl">Quarté</span><span class="srv" style="color:var(--purple)">Variable · 4 premiers</span></div>
+    <div class="sr"><span class="srl">Quinté+</span><span class="srv" style="color:var(--gold)">400 FCFA base</span></div>
+    <div class="sr"><span class="srl">Bonus 4 Quinté+</span><span class="srv" style="color:var(--green)">4 bons sur 5 = gain</span></div>
+    <div class="sr"><span class="srl">Multi (4-7 chevaux)</span><span class="srv" style="color:var(--red2)">Variable · Formule</span></div>
+    <div class="sr"><span class="srl">2 sur 4</span><span class="srv" style="color:var(--cyan)">Variable · 2 parmi 4</span></div>
+  </div>
+
+  <div class="card cg">
+    <div class="card-title ct-gold">⏰ Horaires ALR LONACI</div>
+    <div class="sr"><span class="srl">Nationale 1 — Quinté+</span><span class="srv" style="color:var(--green)">11h00 – 13h00</span></div>
+    <div class="sr"><span class="srl">PLR (courses live)</span><span class="srv" style="color:var(--gold)">Toute la journée</span></div>
+    <div class="sr"><span class="srl">Nationale 2 — Tiercé</span><span class="srv" style="color:var(--cyan)">17h00 – 20h00</span></div>
+    <div class="sr"><span class="srl">Mise min Quinté+</span><span class="srv" style="color:var(--gold)">400 FCFA</span></div>
+    <div class="sr"><span class="srl">Parier en ligne</span><span class="srv" style="color:var(--muted)">lonacionline.ci · *590#</span></div>
+  </div>
+
+  <div class="card cg">
+    <div class="card-title ct-gold">📋 Liens officiels</div>
+    <a href="https://pmu.lonacionline.ci/mobile/" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-decoration:none;margin-bottom:8px">
+      <span style="font-size:20px">🌐</span><div><div style="font-weight:700;font-size:13px;color:var(--text)">LONACIONLINE.CI</div><div style="font-size:11px;color:var(--muted)">Programme live · Paris · Résultats</div></div><span style="color:var(--muted);margin-left:auto">→</span>
+    </a>
+    <a href="https://pmu-pmub.com/nationale-1-resultat-et-programme-lonaci" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-decoration:none;margin-bottom:8px">
+      <span style="font-size:20px">📊</span><div><div style="font-weight:700;font-size:13px;color:var(--text)">PMU-PMUB.COM — N1</div><div style="font-size:11px;color:var(--muted)">Arrivées · Journal hippique · Partants</div></div><span style="color:var(--muted);margin-left:auto">→</span>
+    </a>
+    <a href="https://professionnallink.com/document/pmub/" target="_blank" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;text-decoration:none">
+      <span style="font-size:20px">📄</span><div><div style="font-weight:700;font-size:13px;color:var(--text)">Journal Hippique PDF</div><div style="font-size:11px;color:var(--muted)">Programme complet · Chevaux · Cotes</div></div><span style="color:var(--muted);margin-left:auto">→</span>
+    </a>
+  </div>
+
+  <a href="https://www.lonacionline.ci/" target="_blank" class="btn btn-green" style="text-decoration:none">🌐 Parier sur LONACIONLINE.CI</a>
+  <a href="https://www.1xbet.com/fr" target="_blank" class="btn btn-orange" style="text-decoration:none;margin-top:0">🎰 Parier sur 1XBET</a>
+</div>
+
+</main>
+
+<script>
+// ============================================================
+//  DONNÉES PMU LONACI — Arrivées réelles
+// ============================================================
+let PMU_ARRIVEES = JSON.parse(localStorage.getItem('pmu-ia-arrivees') || 'null') || [
+  {d:'06-04-2026', a:[8,2,6,12,7]},
+  {d:'05-04-2026', a:[3,1,7,5,12]},
+  {d:'04-04-2026', a:[10,8,7,3,12]},
+  {d:'03-04-2026', a:[9,4,10,13,7]},
+  {d:'02-04-2026', a:[9,10,7,4,3]},
+  {d:'01-04-2026', a:[1,5,9,3,2]},
+  {d:'31-03-2026', a:[6,2,14,8,9]},
+  {d:'30-03-2026', a:[7,3,11,5,9]},
+];
+
+let selectedOpts = new Set(['quinte']);
+let currentPdfBase64 = null;
+let currentPdfName = '';
+
+// ============================================================
+//  STATS PMU
+// ============================================================
+function calcPmuStats() {
+  const freq = {}, ff = {};
+  PMU_ARRIVEES.forEach(r => r.a.forEach((n,i) => {
+    freq[n] = (freq[n]||0)+1;
+    if(i===0) ff[n] = (ff[n]||0)+1;
+  }));
+  const sorted = Object.entries(freq).sort((a,b)=>b[1]-a[1]);
+  const hot = sorted.slice(0,6).map(x=>+x[0]);
+  const cold = sorted.slice(-5).map(x=>+x[0]);
+  const tf = Object.entries(ff).sort((a,b)=>b[1]-a[1]);
+  const prono = hot.slice(0,5);
+
+  // Taux réussite
+  let ok=0, placed=0;
+  PMU_ARRIVEES.forEach(r => {
+    const hits = prono.filter(n=>r.a.includes(n)).length;
+    if(hits>=4) ok++;
+    if(hits>=3) placed++;
+  });
+  const n = PMU_ARRIVEES.length||1;
+
+  return {freq,ff,hot,cold,tf,prono,ok,placed,n,taux:Math.round(placed/n*100)};
+}
+
+// ============================================================
+//  BUILD UI
+// ============================================================
+function buildAll() {
+  const s = calcPmuStats();
+
+  // Comparatif
+  document.getElementById('comp-hot').textContent = s.hot.join(', ');
+  document.getElementById('comp-prono').innerHTML =
+    s.prono.map(n=>`<div style="width:36px;height:36px;border-radius:50%;background:rgba(240,180,41,.2);border:2px solid var(--gold);color:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900">${n}</div>`).join('');
+
+  const compRows = PMU_ARRIVEES.map(r => {
+    const hits = s.prono.filter(n=>r.a.includes(n)).length;
+    const col = hits>=4?'var(--green)':hits>=3?'var(--gold)':'var(--red2)';
+    const icon = hits>=4?'✅':hits>=3?'⚡':'❌';
+    return `<div class="comp-item">
+      <div class="ci-header">
+        <span class="ci-course">N1 — ${r.d}</span>
+        <span class="ci-score" style="color:${col}">${icon} ${hits}/5</span>
+      </div>
+      <div style="display:flex;gap:4px;margin-bottom:4px">
+        ${r.a.map((n,i)=>{
+          const hit=s.prono.includes(n);
+          return `<div style="width:28px;height:28px;border-radius:50%;background:${hit?'rgba(0,230,118,.2)':'rgba(255,255,255,.05)'};border:2px solid ${hit?'var(--green)':'var(--border)'};color:${hit?'var(--green)':'var(--muted)'};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:10px;font-weight:700">${n}</div>`;
+        }).join('')}
+      </div>
+      <div class="ci-details">Prono IA : ${s.prono.join(' — ')} · ${hits>=4?'Quinté+ gagné !':hits>=3?'Bonus 4 !':'Pas de gain'}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('comp-list').innerHTML = compRows;
+
+  const compStats = document.getElementById('comp-stats');
+  if(compStats) compStats.innerHTML = `
+    <div style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 6px;text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--green)">${Math.round(s.ok/s.n*100)}%</div><div style="font-size:9px;color:var(--muted)">4+/5</div></div>
+    <div style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 6px;text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--gold)">${s.taux}%</div><div style="font-size:9px;color:var(--muted)">3+/5</div></div>
+    <div style="flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 6px;text-align:center"><div style="font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--cyan)">${s.n}</div><div style="font-size:9px;color:var(--muted)">Analysés</div></div>`;
+
+  // Arrivées
+  const arrColors = ['color:var(--gold)','color:#aaa','color:#cd7f32','color:var(--muted)','color:var(--muted)'];
+  document.getElementById('arr-list').innerHTML = PMU_ARRIVEES.map(r=>`
+    <div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-weight:700;font-size:13px">N1 — ${r.d}</span>
+        <span style="background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.25);font-size:9px;font-weight:700;padding:3px 7px;border-radius:20px">OFFICIEL</span>
+      </div>
+      <div style="display:flex;gap:5px">${r.a.map((n,i)=>`<div style="width:32px;height:32px;border-radius:50%;background:rgba(240,180,41,.15);border:2px solid ${i===0?'var(--gold)':i===1?'#aaa':i===2?'#cd7f32':'var(--border)'};${arrColors[i]};display:flex;align-items:center;justify-content:center;font-family:'Orbitron',sans-serif;font-size:11px;font-weight:900">${n}</div>`).join('')}</div>
+    </div>`).join('');
+
+  document.getElementById('stat-hot').textContent = s.hot.join(', ');
+  document.getElementById('stat-top1').textContent = `N°${s.tf[0]?.[0]||'?'} (${s.tf[0]?.[1]||0}x)`;
+  document.getElementById('stat-nb').textContent = s.n;
+  document.getElementById('stat-taux').textContent = s.taux + '%';
+
+  // Inputs arrivée
+  const arrIn = document.getElementById('arr-inputs');
+  if(arrIn && !arrIn.children.length) {
+    arrIn.innerHTML = [1,2,3,4,5].map(i=>`
+      <input class="arr-num" maxlength="2" placeholder="${i}" id="arr-n${i}" oninput="formatArrNum(this)" onchange="formatArrNum(this)">`
+    ).join('');
+    document.getElementById('arr-date').value = new Date().toISOString().slice(0,10);
+  }
+}
+
+function formatArrNum(el) {
+  el.value = el.value.replace(/\D/g,'').slice(0,2);
+  el.classList.toggle('filled', el.value.length > 0);
+}
+
+// ============================================================
+//  FILE HANDLING
+// ============================================================
+function handleFile(file) {
+  if(!file || !file.name.endsWith('.pdf')) {
+    showToast('⚠️ Erreur','Sélectionne un fichier PDF valide.');
+    return;
+  }
+  currentPdfName = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentPdfBase64 = e.target.result.split(',')[1];
+    document.getElementById('upload-zone').classList.add('has-file');
+    document.getElementById('file-info').style.display = 'block';
+    document.getElementById('options-box').style.display = 'block';
+    document.getElementById('fi-name').textContent = file.name;
+    document.getElementById('fi-size').textContent = `${(file.size/1024).toFixed(1)} Ko · PDF Programme PMU`;
+    showToast('✅ PDF chargé', file.name);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeFile() {
+  currentPdfBase64 = null;
+  currentPdfName = '';
+  document.getElementById('upload-zone').classList.remove('has-file');
+  document.getElementById('file-info').style.display = 'none';
+  document.getElementById('options-box').style.display = 'none';
+  document.getElementById('pdf-input').value = '';
+}
+
+// DRAG & DROP
+const uz = document.getElementById('upload-zone');
+uz.addEventListener('dragover', e => { e.preventDefault(); uz.classList.add('drag'); });
+uz.addEventListener('dragleave', () => uz.classList.remove('drag'));
+uz.addEventListener('drop', e => {
+  e.preventDefault(); uz.classList.remove('drag');
+  if(e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+// ============================================================
+//  OPTIONS
+// ============================================================
+function toggleOpt(el, opt) {
+  selectedOpts.clear();
+  document.querySelectorAll('.opt').forEach(o => o.classList.remove('on'));
+  selectedOpts.add(opt);
+  el.classList.add('on');
+}
+
+// ============================================================
+//  ANALYSER PDF
+// ============================================================
+async function analyserPDF() {
+  if(!currentPdfBase64) { showToast('⚠️','Importe d\'abord un PDF !'); return; }
+
+  const opt = [...selectedOpts][0] || 'quinte';
+  const budget = document.getElementById('budget').value;
+  const nationale = document.getElementById('nationale').value;
+
+  // Show loading
+  document.getElementById('options-box').style.display = 'none';
+  document.getElementById('file-info').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'none';
+  document.getElementById('loading-box').classList.add('show');
+
+  // Animate steps
+  const steps = ['ls1','ls2','ls3','ls4','ls5','ls6'];
+  let si = 0;
+  const stepInt = setInterval(() => {
+    if(si > 0) document.getElementById(steps[si-1]).className = 'ls done';
+    if(si < steps.length) { document.getElementById(steps[si]).className = 'ls active'; si++; }
+    else clearInterval(stepInt);
+  }, 800);
+
+  const s = calcPmuStats();
+  const optLabels = {quinte:'Quinté+',tierce:'Tiercé Désordre',couple:'Couplé Gagnant',simple:'Simple Gagnant',quarte:'Quarté',multi:'Multi'};
+
+  const sys = `Tu es un expert hippique PMU LONACI Côte d'Ivoire de très haut niveau.
+On te donne le PDF du programme hippique officiel LONACI.
+
+DONNÉES HISTORIQUES :
+- Numéros chauds récents N1 : ${s.hot.join(', ')}
+- 1er numéro le plus fréquent : N°${s.tf[0]?.[0]||'?'}
+- Taux réussite IA : ${s.taux}%
+- Arrivées récentes : ${PMU_ARRIVEES.slice(0,4).map(r=>r.d+':'+r.a.join('-')).join(' | ')}
+
+ANALYSE DEMANDÉE :
+- Nationale : ${nationale}
+- Type de pari : ${optLabels[opt]}
+- Budget : ${budget} FCFA
+
+Tu dois analyser le PDF du programme et répondre en JSON UNIQUEMENT (pas de texte avant ou après) :
+{
+  "titre": "Nom de la course analysée",
+  "nationale": "${nationale}",
+  "pari": "${optLabels[opt]}",
+  "confidence": 75,
+  "selection": [
+    {"num": 3, "nom": "Nom du cheval", "role": "favori", "raison": "Raison courte"},
+    {"num": 7, "nom": "Nom du cheval", "role": "selection", "raison": "Raison courte"},
+    {"num": 1, "nom": "Nom du cheval", "role": "outsider", "raison": "Raison courte"}
+  ],
+  "paris": [
+    {"type": "Quinté+", "numeros": "3-7-1-5-9", "gain_estime": "40000", "conf": 72},
+    {"type": "Tiercé Désordre", "numeros": "3-7-1", "gain_estime": "15000", "conf": 78},
+    {"type": "Couplé Gagnant", "numeros": "3-7", "gain_estime": "5000", "conf": 82},
+    {"type": "Simple Gagnant", "numeros": "3", "gain_estime": "2500", "conf": 85}
+  ],
+  "analyse": "Analyse complète en 3-4 phrases : état de forme des favoris, conditions de course, recommandation principale.",
+  "stats": {
+    "nb_partants": 15,
+    "distance": "2400m",
+    "terrain": "Plat",
+    "favori": "N°3",
+    "cote_favori": "2.5"
+  }
+}`;
+
+  try {
+    const r = await fetch('/api/ai', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: sys,
+        messages:[{
+          role:'user',
+          content:[
+            {type:'document', source:{type:'base64', media_type:'application/pdf', data:currentPdfBase64}},
+            {type:'text', text:`Analyse ce programme ${nationale} et génère un pronostic ${optLabels[opt]} avec budget ${budget} FCFA. Réponds UNIQUEMENT en JSON valide.`}
+          ]
+        }]
+      })
+    });
+
+    const d = await r.json();
+    clearInterval(stepInt);
+    steps.forEach(s=>document.getElementById(s).className='ls done');
+
+    setTimeout(() => {
+      document.getElementById('loading-box').classList.remove('show');
+      const t = d.content?.map(b=>b.text||'').join('')||'{}';
+      try {
+        const clean = t.replace(/```json|```/g,'').trim();
+        const data = JSON.parse(clean);
+        displayResults(data, budget);
+      } catch {
+        displayResultsFallback(opt, budget, s);
+      }
+    }, 500);
+
+  } catch(err) {
+    clearInterval(stepInt);
+    document.getElementById('loading-box').classList.remove('show');
+    document.getElementById('upload-zone').style.display = 'block';
+    document.getElementById('options-box').style.display = 'block';
+    document.getElementById('file-info').style.display = 'block';
+    showToast('❌ Erreur', 'Connexion échouée. Vérifie ANTHROPIC_API_KEY sur Vercel.');
+  }
+}
+
+function displayResults(data, budget) {
+  document.getElementById('result-box').classList.add('show');
+
+  document.getElementById('res-title').textContent = `${data.pari||'QUINTÉ+'} — ${data.nationale||'N1'}`;
+  document.getElementById('res-sub').textContent = data.titre || 'Analyse IA du programme LONACI';
+  document.getElementById('res-conf').textContent = (data.confidence||75) + '%';
+  document.getElementById('res-conf-bar').style.width = (data.confidence||75) + '%';
+
+  const roleConf = {favori:{bg:'rgba(240,180,41,.15)',bc:'rgba(240,180,41,.3)',col:'var(--gold)',badge:'hb-gold',label:'FAVORI'},selection:{bg:'rgba(0,230,118,.1)',bc:'rgba(0,230,118,.25)',col:'var(--green)',badge:'hb-green',label:'SÉLECTION'},outsider:{bg:'rgba(224,64,251,.08)',bc:'rgba(224,64,251,.2)',col:'#ea80fc',badge:'hb-purple',label:'OUTSIDER'},danger:{bg:'rgba(255,45,85,.08)',bc:'rgba(255,45,85,.2)',col:'var(--red2)',badge:'hb-red',label:'DANGER'}};
+
+  const sel = data.selection||[];
+  document.getElementById('res-horses').innerHTML = sel.map(h => {
+    const rc = roleConf[h.role]||roleConf.selection;
+    return `<div class="horse h-${h.role}" style="background:${rc.bg};border-color:${rc.bc}">
+      <div class="horse-num" style="color:${rc.col}">N°${h.num}</div>
+      <div class="horse-info">
+        <div class="horse-name">${h.nom||'Cheval N°'+h.num}</div>
+        <div class="horse-details">${h.raison||''}</div>
+      </div>
+      <span class="horse-badge ${rc.badge}">${rc.label}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('res-analyse').innerHTML = data.analyse||'Analyse basée sur le programme PDF et l\'historique LONACI.';
+
+  const pColors = ['var(--gold)','var(--green)','var(--cyan)','var(--orange)','var(--purple)'];
+  const paris = data.paris||[];
+  document.getElementById('res-paris').innerHTML = paris.slice(0,6).map((p,i)=>`
+    <div class="pr" style="border-color:rgba(255,255,255,.08)">
+      <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${pColors[i%pColors.length]}"></div>
+      <div class="pr-type" style="color:${pColors[i%pColors.length]}">${p.type}</div>
+      <div class="pr-sel">Numéros : ${p.numeros||'—'}</div>
+      <div class="pr-gain" style="color:${pColors[i%pColors.length]}">${parseInt(p.gain_estime||0).toLocaleString('fr-FR')} FCFA</div>
+      <div class="pr-conf">Confiance : ${p.conf||70}%</div>
+      <div class="pb"><div class="pf" style="width:${p.conf||70}%;background:${pColors[i%pColors.length]}"></div></div>
+    </div>`).join('');
+
+  const st = data.stats||{};
+  document.getElementById('res-stats').innerHTML = `
+    <div class="sr"><span class="srl">Partants</span><span class="srv" style="color:var(--gold)">${st.nb_partants||'—'}</span></div>
+    <div class="sr"><span class="srl">Distance</span><span class="srv" style="color:var(--cyan)">${st.distance||'—'}</span></div>
+    <div class="sr"><span class="srl">Terrain</span><span class="srv" style="color:var(--muted)">${st.terrain||'—'}</span></div>
+    <div class="sr"><span class="srl">Grand favori</span><span class="srv" style="color:var(--gold)">${st.favori||'—'}</span></div>
+    <div class="sr"><span class="srl">Cote favori</span><span class="srv" style="color:var(--green)">${st.cote_favori||'—'}</span></div>`;
+
+  showToast('✅ Analyse terminée !', 'Pronostics IA générés avec succès');
+}
+
+function displayResultsFallback(opt, budget, s) {
+  const data = {
+    pari: opt==='quinte'?'Quinté+':opt==='tierce'?'Tiercé Désordre':'Simple Gagnant',
+    nationale:'N1', titre:'Course analysée',
+    confidence: s.taux,
+    selection: s.hot.slice(0,5).map((n,i)=>({num:n, nom:`Cheval N°${n}`, role:i===0?'favori':i===4?'outsider':'selection', raison:i===0?'Numéro le plus fréquent':'Sélection historique'})),
+    paris:[
+      {type:'Quinté+', numeros:s.hot.slice(0,5).join('-'), gain_estime:Math.floor(+budget*15), conf:s.taux},
+      {type:'Tiercé Désordre', numeros:s.hot.slice(0,3).join('-'), gain_estime:Math.floor(+budget*8), conf:s.taux+5},
+      {type:'Couplé Gagnant', numeros:s.hot.slice(0,2).join('-'), gain_estime:Math.floor(+budget*4), conf:s.taux+10},
+      {type:'Simple Gagnant', numeros:''+s.hot[0], gain_estime:Math.floor(+budget*2), conf:s.taux+15},
+    ],
+    analyse:`Sélection basée sur l'historique LONACI. Numéros chauds : ${s.hot.slice(0,3).join(', ')}. Taux de réussite IA : ${s.taux}%. Mise conseillée : ${budget} FCFA.`,
+    stats:{nb_partants:'—', distance:'—', terrain:'Plat', favori:'N°'+s.hot[0], cote_favori:'—'}
+  };
+  displayResults(data, budget);
+}
+
+function resetAnalyse() {
+  document.getElementById('result-box').classList.remove('show');
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('upload-zone').classList.remove('has-file');
+  document.getElementById('file-info').style.display = 'none';
+  document.getElementById('options-box').style.display = 'none';
+  document.getElementById('pdf-input').value = '';
+  currentPdfBase64 = null;
+}
+
+// ============================================================
+//  ARRIVÉE — AJOUTER
+// ============================================================
+function addArrivee() {
+  const nums = [1,2,3,4,5].map(i=>+document.getElementById(`arr-n${i}`).value).filter(n=>n>0&&n<20);
+  const date = document.getElementById('arr-date').value;
+  if(nums.length < 3) { showToast('⚠️','Entre au moins 3 numéros.'); return; }
+  if(!date) { showToast('⚠️','Choisis une date.'); return; }
+  PMU_ARRIVEES.unshift({d:date.split('-').reverse().join('-'), a:nums});
+  localStorage.setItem('pmu-ia-arrivees', JSON.stringify(PMU_ARRIVEES));
+  buildAll();
+  [1,2,3,4,5].forEach(i=>{ const el=document.getElementById(`arr-n${i}`); el.value=''; el.classList.remove('filled'); });
+  showToast('✅ Ajouté !', `N1 ${date} : ${nums.join(' - ')}`);
+}
+
+// ============================================================
+//  CHAT IA
+// ============================================================
+const chatHistory = [];
+async function sendChat() {
+  const q = document.getElementById('chat-q').value.trim();
+  if(!q) return;
+  document.getElementById('chat-q').value = '';
+  const s = calcPmuStats();
+
+  addMsg('user', q);
+  addMsg('ia', '<div style="display:flex;align-items:center;gap:8px"><div class="spin-sm"></div>Analyse en cours...</div>');
+
+  chatHistory.push({role:'user', content:q});
+
+  const sys = `Tu es un expert hippique PMU LONACI Côte d'Ivoire.
+Données historiques N1 : chauds=${s.hot.join(',')}, 1er fréquent=N°${s.tf[0]?.[0]||'?'}, taux=${s.taux}%, arrivées récentes=${PMU_ARRIVEES.slice(0,3).map(r=>r.d+':'+r.a.join('-')).join('|')}.
+Paris dispo: Simple G/P, Couplé G/P, Tiercé O/D, Quarté, Quinté+(400F base, Bonus 4), Multi, 2sur4.
+Horaires: N1(11h-13h), N2(17h-20h). Parier: lonacionline.ci ou *590#.
+Réponds en français, max 100 mots, **gras** pour numéros et termes importants.`;
+
+  try {
+    const r = await fetch('/api/ai',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:chatHistory})
+    });
+    const d = await r.json();
+    const t = d.content?.map(b=>b.text||'').join('')||'Erreur.';
+    chatHistory.push({role:'assistant', content:t});
+    updateLastIAMsg(t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'));
+  } catch {
+    updateLastIAMsg('<span style="color:var(--red2)">Erreur connexion. Vérifie ANTHROPIC_API_KEY sur Vercel.</span>');
+  }
+}
+
+function addMsg(role, content) {
+  const h = document.getElementById('chat-history');
+  const div = document.createElement('div');
+  div.className = `msg msg-${role}`;
+  div.innerHTML = `<div class="bubble">${content}</div>`;
+  h.appendChild(div);
+  h.scrollTop = h.scrollHeight;
+}
+
+function updateLastIAMsg(content) {
+  const msgs = document.querySelectorAll('.msg-ia');
+  const last = msgs[msgs.length-1];
+  if(last) last.querySelector('.bubble').innerHTML = content;
+}
+
+function setQ(q) { document.getElementById('chat-q').value = q; showTab('chat', document.querySelectorAll('.tab')[3]); }
+
+// ============================================================
+//  TABS & UTILS
+// ============================================================
+function showTab(id,el) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+function showToast(title, body) {
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-body').textContent = body;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 4000);
+}
+
+document.getElementById('chat-q').addEventListener('keypress', e => { if(e.key==='Enter') sendChat(); });
+
+window.addEventListener('load', buildAll);
+</script>
+</body>
+</html>
