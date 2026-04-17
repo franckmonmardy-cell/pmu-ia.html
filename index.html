@@ -109,14 +109,14 @@ const DEMO_HORSES=[
 ];
 
 const PARIS_TYPES=[
-  {id:"sg",name:"Simple Gagnant",mise:"≥ 100 FCFA",tag:"Facile",tagCls:"tag-green",desc:"1 cheval 1ère place"},
-  {id:"sp",name:"Simple Placé",mise:"≥ 100 FCFA",tag:"Facile",tagCls:"tag-green",desc:"1 cheval top 3"},
-  {id:"cg",name:"Couplé Gagnant",mise:"≥ 200 FCFA",tag:"Moyen",tagCls:"tag-orange",desc:"2 chevaux 1er et 2ème"},
-  {id:"cp",name:"Couplé Placé",mise:"≥ 200 FCFA",tag:"Moyen",tagCls:"tag-orange",desc:"2 chevaux top 3"},
-  {id:"ti",name:"Tiercé",mise:"≥ 300 FCFA",tag:"Expert",tagCls:"tag-blue",desc:"3 chevaux dans l'ordre"},
-  {id:"qa",name:"Quarté+",mise:"≥ 400 FCFA",tag:"Expert",tagCls:"tag-blue",desc:"4 chevaux top 4"},
-  {id:"qi",name:"Quinté+",mise:"≥ 500 FCFA",tag:"Pro",tagCls:"tag-red",desc:"5 chevaux top 5"},
-  {id:"mu",name:"Multi",mise:"≥ 600 FCFA",tag:"Pro",tagCls:"tag-red",desc:"6 à 8 chevaux"},
+  {id:"sg",name:"Simple Gagnant",mise:"100 FCFA",tag:"Facile",tagCls:"tag-green",desc:"1 cheval 1ere place"},
+  {id:"sp",name:"Simple Place",mise:"100 FCFA",tag:"Facile",tagCls:"tag-green",desc:"1 cheval top 3"},
+  {id:"cg",name:"Couple Gagnant",mise:"200 FCFA",tag:"Moyen",tagCls:"tag-orange",desc:"2 chevaux 1er et 2eme"},
+  {id:"cp",name:"Couple Place",mise:"200 FCFA",tag:"Moyen",tagCls:"tag-orange",desc:"2 chevaux top 3"},
+  {id:"ti",name:"Tierce",mise:"300 FCFA",tag:"Expert",tagCls:"tag-blue",desc:"3 chevaux dans l'ordre"},
+  {id:"qa",name:"Quarte+",mise:"400 FCFA",tag:"Expert",tagCls:"tag-blue",desc:"4 chevaux top 4"},
+  {id:"qi",name:"Quinte+",mise:"500 FCFA",tag:"Pro",tagCls:"tag-red",desc:"5 chevaux top 5"},
+  {id:"mu",name:"Multi",mise:"600 FCFA",tag:"Pro",tagCls:"tag-red",desc:"6 a 8 chevaux"},
 ];
 
 const IA_MODELS=[
@@ -128,18 +128,18 @@ const IA_MODELS=[
 
 const TAUX_DATA=[
   {label:"Gagnant",val:68,col:"#22C55E"},
-  {label:"Placé",val:79,col:"#3B82F6"},
-  {label:"Couplé G.",val:52,col:"#C9A84C"},
-  {label:"Tiercé O.",val:38,col:"#F97316"},
-  {label:"Quarté+",val:24,col:"#EF4444"},
-  {label:"Quinté+",val:14,col:"#8B5CF6"},
+  {label:"Place",val:79,col:"#3B82F6"},
+  {label:"Couple",val:52,col:"#C9A84C"},
+  {label:"Tierce",val:38,col:"#F97316"},
+  {label:"Quarte+",val:24,col:"#EF4444"},
+  {label:"Quinte+",val:14,col:"#8B5CF6"},
 ];
 
 const EXT_LINKS=[
   {icon:"🐴",name:"PMU.fr",desc:"Paris officiel France",url:"https://www.pmu.fr/turf/"},
   {icon:"🇨🇮",name:"LONACI CI",desc:"Loterie Nationale CI",url:"https://www.lonaci.ci/pmu/"},
   {icon:"💻",name:"PMU Online CI",desc:"Paris en ligne CI",url:"https://pmu.lonacionline.ci/mobile/"},
-  {icon:"📊",name:"Turf-FR",desc:"Stats & pronostics",url:"https://www.turf-fr.com/programmes-courses"},
+  {icon:"📊",name:"Turf-FR",desc:"Stats et pronostics",url:"https://www.turf-fr.com/programmes-courses"},
 ];
 
 function App(){
@@ -151,10 +151,9 @@ function App(){
   const [analyzeStep,setAnalyzeStep]=useState("");
   const [aiResult,setAiResult]=useState(null);
   const [selectedParis,setSelectedParis]=useState(["sg"]);
-  const [messages,setMessages]=useState([{role:"ai",text:"🐴 Bonjour ! Importez un programme PDF ou posez vos questions sur les pronostics du jour."}]);
+  const [messages,setMessages]=useState([{role:"ai",text:"Bonjour ! Importez un programme PDF ou posez vos questions sur les pronostics du jour."}]);
   const [chatInput,setChatInput]=useState("");
   const [chatLoading,setChatLoading]=useState(false);
-  const [dragOver,setDragOver]=useState(false);
   const fileRef=useRef(null);
   const chatEndRef=useRef(null);
 
@@ -177,28 +176,28 @@ function App(){
     await animateProgress(0,40,"Lecture du programme PDF...");
     await animateProgress(40,70,"Analyse IA en cours...");
     try{
-      const SYSTEM=`Tu es PMU Expert CI, expert en pronostics hippiques. Analyse ce programme PMU. Réponds UNIQUEMENT en JSON valide sans balises markdown. Format: {"course":"Hippodrome R1C3","depart":"14h30","chevaux":[{"num":1,"nom":"NOM","jockey":"Nom","forme":"1-2-3","score":85,"cote":"3.2","avis":"commentaire"}],"tierce":[3,7,1],"quarte":[3,7,1,5],"quinte":[3,7,1,5,9],"conseil":"conseil"}. Trie par score décroissant.`;
+      const SYSTEM=`Tu es PMU Expert CI, expert en pronostics hippiques pour la Cote d'Ivoire et la France. Analyse le programme PMU fourni. Reponds UNIQUEMENT en JSON valide sans balises markdown. Format exact: {"course":"Hippodrome R1C3","depart":"14h30","chevaux":[{"num":1,"nom":"NOM CHEVAL","jockey":"Prenom Nom","forme":"1-2-3","score":85,"cote":"3.2","avis":"commentaire court"}],"tierce":[3,7,1],"quarte":[3,7,1,5],"quinte":[3,7,1,5,9],"conseil":"Conseil de mise"}. Trie les chevaux par score decroissant. Score = probabilite de victoire 0-100.`;
       const resp=await fetch(PROXY,{
         method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
-          model:"claude-sonnet-4-5",max_tokens:1000,system:SYSTEM,
+          model:"claude-sonnet-4-20250514",max_tokens:1500,system:SYSTEM,
           messages:[{role:"user",content:[
             {type:"document",source:{type:"base64",media_type:"application/pdf",data:base64}},
-            {type:"text",text:"Analyse ce programme PMU en JSON."}
+            {type:"text",text:"Analyse ce programme PMU du Journal Hippique et donne les pronostics complets en JSON."}
           ]}]
         })
       });
-      await animateProgress(70,95,"Génération des pronostics...");
+      await animateProgress(70,95,"Generation des pronostics...");
       const data=await resp.json();
       const raw=data.content?.find(b=>b.type==="text")?.text||"";
       const parsed=JSON.parse(raw.replace(/```json|```/g,"").trim());
       setAiResult(parsed);
       const top=(parsed.chevaux||[]).slice(0,3).map(h=>`#${h.num} ${h.nom}`).join(", ");
-      setMessages([{role:"ai",text:`🐴 Programme analysé : ${parsed.course} — ${parsed.depart}\nFavoris : ${top}\nPosez vos questions !`}]);
+      setMessages([{role:"ai",text:`Programme analyse : ${parsed.course} - Depart ${parsed.depart}\nFavoris : ${top}\nPosez vos questions sur cette course !`}]);
     }catch(err){
-      setAiResult({error:"Impossible d'analyser ce PDF. Vérifiez que c'est un programme PMU officiel."});
+      setAiResult({error:"Impossible d'analyser ce PDF. Verifiez que c'est un programme PMU officiel."});
     }
-    await animateProgress(95,100,"Terminé !");
+    await animateProgress(95,100,"Termine !");
     setAnalyzing(false);setPdfLoaded(true);
   },[animateProgress]);
 
@@ -211,8 +210,8 @@ function App(){
       const resp=await fetch(PROXY,{
         method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
-          model:"claude-sonnet-4-5",max_tokens:1000,
-          system:`Tu es PMU Expert CI. Course: ${aiResult?.course||"Longchamp R1C3"} — ${aiResult?.depart||"14h30"}. Chevaux: ${horses.map(h=>`#${h.num} ${h.nom} (score:${h.score}%,cote:x${h.cote})`).join(", ")}. Tierce: ${(aiResult?.tierce||[3,7,1]).join("-")}. Reponds en francais avec des emojis.`,
+          model:"claude-sonnet-4-20250514",max_tokens:1000,
+          system:`Tu es PMU Expert CI, expert hippique pour la Cote d'Ivoire. Course: ${aiResult?.course||"Longchamp R1C3"} - Depart ${aiResult?.depart||"14h30"}. Chevaux: ${horses.map(h=>`#${h.num} ${h.nom} (score:${h.score}%,cote:x${h.cote})`).join(", ")}. Tierce conseille: ${(aiResult?.tierce||[3,7,1]).join("-")}. Reponds en francais avec des emojis.`,
           messages:messages.slice(-6).map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text})).concat([{role:"user",content:userMsg}])
         })
       });
@@ -252,18 +251,18 @@ function App(){
             <button key={t.id} className={`nav-btn${tab===t.id?" active":""}`} onClick={()=>setTab(t.id)}>{t.label}</button>
           ))}
         </nav>
+
         {tab==="analyse"&&(
           <div className="section">
-            <div className="section-title">Analyse de Cours</div>
+            <div className="section-title">Analyse PDF</div>
             {!pdfLoaded&&!analyzing&&(
               <div className="upload-zone" onClick={()=>fileRef.current?.click()}
-                onDragOver={(e)=>{e.preventDefault();setDragOver(true);}}
-                onDragLeave={()=>setDragOver(false)}
-                onDrop={(e)=>{e.preventDefault();setDragOver(false);handleFile(e.dataTransfer.files[0]);}}>
+                onDragOver={(e)=>{e.preventDefault();}}
+                onDrop={(e)=>{e.preventDefault();handleFile(e.dataTransfer.files[0]);}}>
                 <input ref={fileRef} type="file" accept=".pdf" style={{display:"none"}} onChange={e=>handleFile(e.target.files[0])}/>
                 <div className="upload-icon">📋</div>
-                <div className="upload-title">Importer le programme PMU</div>
-                <div className="upload-hint">Tapez pour choisir un PDF</div>
+                <div className="upload-title">Importer le Journal Hippique PMU</div>
+                <div className="upload-hint">Tapez pour choisir votre PDF</div>
               </div>
             )}
             {analyzing&&(
@@ -306,12 +305,13 @@ function App(){
             )}
           </div>
         )}
+
         {tab==="pronostics"&&(
           <div className="section">
             <div className="section-title">Pronostics du Jour</div>
             <div className="card" style={{marginBottom:10,padding:"10px 14px",display:"flex",justifyContent:"space-between"}}>
-              <div><div style={{fontSize:12,color:"var(--muted)"}}>Course</div><div style={{fontSize:14,fontWeight:700}}>{aiResult?.course||"Longchamp R1C3"}</div></div>
-              <div style={{textAlign:"right"}}><div style={{fontSize:12,color:"var(--muted)"}}>Depart</div><div style={{fontSize:14,fontWeight:700,color:"var(--gold)"}}>{aiResult?.depart||"14h30"}</div></div>
+              <div><div style={{fontSize:12,color:"var(--muted)"}}>Course</div><div style={{fontSize:14,fontWeight:700}}>{aiResult?.course||"Importez un PDF"}</div></div>
+              <div style={{textAlign:"right"}}><div style={{fontSize:12,color:"var(--muted)"}}>Depart</div><div style={{fontSize:14,fontWeight:700,color:"var(--gold)"}}>{aiResult?.depart||"--h--"}</div></div>
             </div>
             {(aiResult?.chevaux||DEMO_HORSES.map(h=>({num:h.num,nom:h.name,jockey:h.jockey,forme:h.forme,score:h.score,cote:h.cote}))).map((h,i)=>(
               <div className={`horse-card${i<3?" top":""}`} key={h.num}>
@@ -320,15 +320,18 @@ function App(){
                 <div className="horse-score"><div className="horse-pct">{h.score}%</div><div className="horse-cote">x{h.cote}</div></div>
               </div>
             ))}
-            <div className="coupon-box" style={{marginTop:4}}>
-              <div className="coupon-title">TIERCE CONSEILLE</div>
-              <div style={{fontFamily:"monospace",fontSize:18,color:"var(--gold-light)",letterSpacing:3}}>{(aiResult?.tierce||[3,7,1]).join(" - ")}</div>
-            </div>
+            {aiResult?.tierce&&(
+              <div className="coupon-box" style={{marginTop:4}}>
+                <div className="coupon-title">TIERCE CONSEILLE</div>
+                <div style={{fontFamily:"monospace",fontSize:18,color:"var(--gold-light)",letterSpacing:3}}>{aiResult.tierce.join(" - ")}</div>
+              </div>
+            )}
           </div>
         )}
+
         {tab==="paris"&&(
           <div className="section">
-            <div className="section-title">Types de Paris PMU</div>
+            <div className="section-title">Types de Paris</div>
             <div className="paris-grid">
               {PARIS_TYPES.map(p=>(
                 <div key={p.id} className={`paris-card${selectedParis.includes(p.id)?" selected":""}`} onClick={()=>setSelectedParis(prev=>prev.includes(p.id)?prev.filter(x=>x!==p.id):[...prev,p.id])}>
@@ -340,6 +343,7 @@ function App(){
             </div>
           </div>
         )}
+
         {tab==="ia"&&(
           <div className="section">
             <div className="section-title">Comparatif IA</div>
@@ -347,13 +351,14 @@ function App(){
               {IA_MODELS.map(ia=>(
                 <div className="ia-row" key={ia.name}>
                   <div className="ia-avatar" style={{background:`${ia.col}20`}}>{ia.icon}</div>
-                  <div className="ia-info"><div className="ia-name">{ia.name}</div><div className="ia-sel">{ia.sel}</div></div>
+                  <div className="ia-info"><div className="ia-name">{ia.name}</div><div className="ia-sel">{aiResult?`${(aiResult.tierce||[]).join("-")}`:ia.sel}</div></div>
                   <div style={{textAlign:"right"}}><div className="ia-conf-val" style={{color:ia.col}}>{ia.conf}%</div><div className="ia-conf-bar"><div className="ia-conf-fill" style={{width:`${ia.conf}%`,background:ia.col}}/></div></div>
                 </div>
               ))}
             </div>
           </div>
         )}
+
         {tab==="taux"&&(
           <div className="section">
             <div className="section-title">Taux de Reussite</div>
@@ -366,8 +371,14 @@ function App(){
                 </div>
               ))}
             </div>
+            <div className="stats-row">
+              <div className="stat-box"><div className="stat-val" style={{color:"var(--green)"}}>+31%</div><div className="stat-lbl">ROI</div></div>
+              <div className="stat-box"><div className="stat-val">168</div><div className="stat-lbl">Gagnes</div></div>
+              <div className="stat-box"><div className="stat-val">79</div><div className="stat-lbl">Perdus</div></div>
+            </div>
           </div>
         )}
+
         {tab==="chat"&&(
           <div className="section">
             <div className="section-title">Expert PMU IA</div>
@@ -394,6 +405,7 @@ function App(){
             </div>
           </div>
         )}
+
         {tab==="liens"&&(
           <div className="section">
             <div className="section-title">Acces Direct</div>
@@ -405,8 +417,25 @@ function App(){
                 </a>
               ))}
             </div>
+            <div className="card" style={{marginTop:4}}>
+              <div style={{fontSize:13,fontWeight:700,color:"var(--gold)",marginBottom:10}}>Ressources PMU CI</div>
+              {[
+                {icon:"📊",title:"Resultats PMU",desc:"Resultats du jour",url:"https://www.pmu.fr/turf/"},
+                {icon:"📋",title:"Turf-FR",desc:"Programmes gratuits",url:"https://www.turf-fr.com/programmes-courses"},
+                {icon:"🏇",title:"LONACI",desc:"PMU officiel CI",url:"https://www.lonaci.ci/pmu/"},
+                {icon:"💻",title:"LONACI Online",desc:"Paris en ligne CI",url:"https://pmu.lonacionline.ci/mobile/"},
+                {icon:"🌐",title:"Zeturf",desc:"Courses et pronostics",url:"https://www.zeturf.fr/fr/programme-et-pronostics"},
+              ].map(r=>(
+                <a key={r.title} href={r.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid var(--border)",textDecoration:"none",color:"var(--text)"}}>
+                  <span style={{fontSize:18}}>{r.icon}</span>
+                  <div><div style={{fontSize:13,fontWeight:600}}>{r.title}</div><div style={{fontSize:11,color:"var(--muted)"}}>{r.desc}</div></div>
+                  <span style={{marginLeft:"auto",color:"var(--muted)",fontSize:16}}>→</span>
+                </a>
+              ))}
+            </div>
           </div>
         )}
+
       </div>
     </div>
   );
@@ -414,4 +443,4 @@ function App(){
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
-  </html>
+</html>
