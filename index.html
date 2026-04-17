@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PMU Expert CI</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;600;700&display=swap');
+:root{--gold:#C9A84C;--gold-light:#E8C97A;--dark:#0A0C0F;--dark3:#181C22;--dark4:#1E2329;--border:rgba(201,168,76,0.18);--text:#E8E4DC;--muted:#6B7280;--green:#22C55E;--red:#EF4444;--blue:#3B82F6;--orange:#F97316;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sora',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;}
+.container{max-width:480px;margin:0 auto;padding:0 0 80px;position:relative;z-index:1;}
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(201,168,76,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.03) 1px,transparent 1px);background-size:40px 40px;}
+.bg-glow{position:fixed;pointer-events:none;z-index:0;border-radius:50%;filter:blur(120px);opacity:0.08;}
+.glow1{top:-100px;left:-100px;width:400px;height:400px;background:var(--gold);}
+.glow2{bottom:-80px;right:-80px;width:350px;height:350px;background:var(--blue);}
+.header{padding:20px 16px 0;display:flex;align-items:center;justify-content:space-between;}
+.logo-block{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--gold) 0%,#8B6914 100%);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 20px rgba(201,168,76,0.4);}
+.logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold);line-height:1;}
+.logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;}
+.badge-live{display:flex;align-items:center;gap:5px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:4px 10px;font-size:11px;color:var(--green);}
+.dot-pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.quick-links{display:flex;gap:7px;padding:12px 16px 0;overflow-x:auto;scrollbar-width:none;}
+.quick-links::-webkit-scrollbar{display:none;}
+.quick-link{flex-shrink:0;display:flex;align-items:center;gap:6px;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:7px 11px;text-decoration:none;color:var(--text);}
+.ql-icon{font-size:15px;}.ql-name{font-size:11px;font-weight:700;white-space:nowrap;}.ql-arrow{font-size:9px;color:var(--gold);}
+.nav{display:flex;gap:6px;padding:14px 16px 0;overflow-x:auto;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-family:'Sora',sans-serif;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--dark3);color:var(--muted);}
+.nav-btn.active{background:var(--gold);color:var(--dark);border-color:var(--gold);}
+.section{padding:16px 16px 0;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--gold);margin-bottom:12px;}
+.card{background:var(--dark3);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.stat-box{background:var(--dark4);border:1px solid var(--border);border-radius:12px;padding:12px;text-align:center;}
+.stat-val{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--gold-light);}
+.stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.upload-zone{border:2px dashed rgba(201,168,76,0.3);border-radius:14px;padding:28px 16px;text-align:center;cursor:pointer;background:rgba(201,168,76,0.03);margin-bottom:10px;}
+.upload-icon{font-size:36px;margin-bottom:8px;}.upload-title{font-weight:600;font-size:14px;margin-bottom:4px;}.upload-hint{font-size:11px;color:var(--muted);}
+.progress-bar{height:4px;background:var(--dark4);border-radius:2px;overflow:hidden;margin:6px 0;}
+.progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold-light));transition:width 0.5s ease;}
+.horse-card{display:flex;align-items:center;gap:10px;background:var(--dark4);border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid transparent;}
+.horse-card.top{border-color:rgba(201,168,76,0.35);}
+.horse-num{width:28px;height:28px;border-radius:8px;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--dark3);color:var(--gold);}
+.horse-num.top-num{background:var(--gold);color:var(--dark);}
+.horse-info{flex:1;min-width:0;}.horse-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.horse-detail{font-size:10px;color:var(--muted);margin-top:2px;}.horse-score{text-align:right;}
+.horse-pct{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--gold-light);}.horse-cote{font-size:10px;color:var(--muted);}
+.coupon-box{background:linear-gradient(135deg,var(--dark4) 0%,rgba(201,168,76,0.06) 100%);border:1px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:10px;}
+.coupon-title{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold);letter-spacing:2px;margin-bottom:10px;}
+.coupon-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.coupon-num{font-family:monospace;color:var(--gold-light);}
+.paris-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.paris-card{background:var(--dark4);border:1px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;}
+.paris-card.selected{border-color:var(--gold);background:rgba(201,168,76,0.08);}
+.paris-name{font-size:13px;font-weight:700;margin-bottom:4px;}.paris-mise{font-size:11px;color:var(--muted);}
+.paris-tag{display:inline-block;margin-top:6px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;}
+.tag-green{background:rgba(34,197,94,0.15);color:var(--green);}.tag-orange{background:rgba(249,115,22,0.15);color:var(--orange);}
+.tag-blue{background:rgba(59,130,246,0.15);color:var(--blue);}.tag-red{background:rgba(239,68,68,0.15);color:var(--red);}
+.ia-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);}
+.ia-row:last-child{border-bottom:none;}
+.ia-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.ia-info{flex:1;}.ia-name{font-size:13px;font-weight:600;}.ia-sel{font-size:11px;color:var(--muted);margin-top:1px;}
+.ia-conf-val{font-family:'Bebas Neue',sans-serif;font-size:20px;}
+.ia-conf-bar{width:60px;height:3px;background:var(--dark);border-radius:2px;overflow:hidden;margin-top:3px;}
+.ia-conf-fill{height:100%;border-radius:2px;}
+.taux-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.taux-label{width:90px;font-size:12px;color:var(--muted);text-align:right;flex-shrink:0;}
+.taux-bar{flex:1;height:8px;background:var(--dark4);border-radius:4px;overflow:hidden;}
+.taux-fill{height:100%;border-radius:4px;}.taux-val{width:40px;font-size:12px;color:var(--gold-light);text-align:right;}
+.chat-box{background:var(--dark3);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:10px;}
+.chat-messages{padding:14px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:85%;}.msg-ai{align-self:flex-start;}.msg-user{align-self:flex-end;}
+.msg-bubble{padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.5;}
+.msg-ai .msg-bubble{background:var(--dark4);border:1px solid var(--border);}
+.msg-user .msg-bubble{background:var(--gold);color:var(--dark);font-weight:600;}
+.msg-sender{font-size:10px;color:var(--muted);margin-bottom:3px;}
+.chat-input-row{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--dark4);}
+.chat-input{flex:1;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;font-family:'Sora',sans-serif;color:var(--text);outline:none;}
+.chat-send{width:38px;height:38px;border-radius:10px;cursor:pointer;background:var(--gold);color:var(--dark);border:none;font-size:16px;}
+.links-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ext-link{display:flex;align-items:center;gap:8px;background:var(--dark4);border:1px solid var(--border);border-radius:12px;padding:12px;text-decoration:none;color:var(--text);}
+.ext-icon{font-size:22px;flex-shrink:0;}.ext-name{font-size:12px;font-weight:700;}.ext-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+.loading-dots{display:inline-flex;gap:4px;}
+.loading-dots span{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:bounce 1.2s infinite;}
+.loading-dots span:nth-child(2){animation-delay:.2s;}.loading-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow glow1"></div>
+<div class="bg-glow glow2"></div>
+<div id="root"></div>
+<script type="text/babel">const {useState,useRef,useEffect,useCallback}=React;
+const PROXY="https://pmu-proxy.franckmonmardy.workers.dev";
+
+const DEMO_HORSES=[
+  {num:3,name:"TROPEZIENNE",jockey:"C. Soumillon",forme:"1-2-1",score:87,cote:"3.2"},
+  {num:7,name:"VOLTA RIVER",jockey:"O. Peslier",forme:"2-1-3",score:82,cote:"4.5"},
+  {num:1,name:"ABIDJAN STAR",jockey:"T. Jarnet",forme:"1-1-2",score:78,cote:"2.8"},
+  {num:5,name:"DAKAR EXPRESS",jockey:"C. Lemaire",forme:"3-2-1",score:71,cote:"6.1"},
+  {num:9,name:"LAGUNE BLEUE",jockey:"M. Guyon",forme:"2-3-2",score:65,cote:"8.4"},
+];
+
+const PARIS_TYPES=[
+  {id:"sg",name:"Simple Gagnant",mise:"≥ 100 FCFA",tag:"Facile",tagCls:"tag-green",desc:"1 cheval 1ère place"},
+  {id:"sp",name:"Simple Placé",mise:"≥ 100 FCFA",tag:"Facile",tagCls:"tag-green",desc:"1 cheval top 3"},
+  {id:"cg",name:"Couplé Gagnant",mise:"≥ 200 FCFA",tag:"Moyen",tagCls:"tag-orange",desc:"2 chevaux 1er et 2ème"},
+  {id:"cp",name:"Couplé Placé",mise:"≥ 200 FCFA",tag:"Moyen",tagCls:"tag-orange",desc:"2 chevaux top 3"},
+  {id:"ti",name:"Tiercé",mise:"≥ 300 FCFA",tag:"Expert",tagCls:"tag-blue",desc:"3 chevaux dans l'ordre"},
+  {id:"qa",name:"Quarté+",mise:"≥ 400 FCFA",tag:"Expert",tagCls:"tag-blue",desc:"4 chevaux top 4"},
+  {id:"qi",name:"Quinté+",mise:"≥ 500 FCFA",tag:"Pro",tagCls:"tag-red",desc:"5 chevaux top 5"},
+  {id:"mu",name:"Multi",mise:"≥ 600 FCFA",tag:"Pro",tagCls:"tag-red",desc:"6 à 8 chevaux"},
+];
+
+const IA_MODELS=[
+  {icon:"🤖",name:"PMU Expert CI",col:"#C9A84C",sel:"3-7-1",conf:87},
+  {icon:"🧠",name:"Claude Sonnet",col:"#8B5CF6",sel:"3-1-7",conf:82},
+  {icon:"⚡",name:"GPT-4o",col:"#10B981",sel:"7-3-5",conf:76},
+  {icon:"🔥",name:"Gemini Pro",col:"#F97316",sel:"1-7-3",conf:71},
+];
+
+const TAUX_DATA=[
+  {label:"Gagnant",val:68,col:"#22C55E"},
+  {label:"Placé",val:79,col:"#3B82F6"},
+  {label:"Couplé G.",val:52,col:"#C9A84C"},
+  {label:"Tiercé O.",val:38,col:"#F97316"},
+  {label:"Quarté+",val:24,col:"#EF4444"},
+  {label:"Quinté+",val:14,col:"#8B5CF6"},
+];
+
+const EXT_LINKS=[
+  {icon:"🐴",name:"PMU.fr",desc:"Paris officiel France",url:"https://www.pmu.fr/turf/"},
+  {icon:"🇨🇮",name:"LONACI CI",desc:"Loterie Nationale CI",url:"https://www.lonaci.ci/pmu/"},
+  {icon:"💻",name:"PMU Online CI",desc:"Paris en ligne CI",url:"https://pmu.lonacionline.ci/mobile/"},
+  {icon:"📊",name:"Turf-FR",desc:"Stats & pronostics",url:"https://www.turf-fr.com/programmes-courses"},
+];
+
+function App(){
+  const [tab,setTab]=useState("analyse");
+  const [pdfLoaded,setPdfLoaded]=useState(false);
+  const [pdfName,setPdfName]=useState("");
+  const [analyzing,setAnalyzing]=useState(false);
+  const [progress,setProgress]=useState(0);
+  const [analyzeStep,setAnalyzeStep]=useState("");
+  const [aiResult,setAiResult]=useState(null);
+  const [selectedParis,setSelectedParis]=useState(["sg"]);
+  const [messages,setMessages]=useState([{role:"ai",text:"🐴 Bonjour ! Importez un programme PDF ou posez vos questions sur les pronostics du jour."}]);
+  const [chatInput,setChatInput]=useState("");
+  const [chatLoading,setChatLoading]=useState(false);
+  const [dragOver,setDragOver]=useState(false);
+  const fileRef=useRef(null);
+  const chatEndRef=useRef(null);
+
+  useEffect(()=>{chatEndRef.current?.scrollIntoView({behavior:"smooth"});},[messages]);
+
+  const animateProgress=useCallback(async(from,to,label)=>{
+    setAnalyzeStep(label);
+    for(let i=from;i<=to;i+=3){await new Promise(r=>setTimeout(r,40));setProgress(i);}
+  },[]);
+
+  const handleFile=useCallback(async(file)=>{
+    if(!file||file.type!=="application/pdf")return;
+    setPdfName(file.name);setPdfLoaded(false);setAiResult(null);setAnalyzing(true);setProgress(0);
+    const base64=await new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=(e)=>res(e.target.result.split(",")[1]);
+      r.onerror=()=>rej(new Error("Erreur"));
+      r.readAsDataURL(file);
+    });
+    await animateProgress(0,40,"Lecture du programme PDF...");
+    await animateProgress(40,70,"Analyse IA en cours...");
+    try{
+      const SYSTEM=`Tu es PMU Expert CI, expert en pronostics hippiques. Analyse ce programme PMU. Réponds UNIQUEMENT en JSON valide sans balises markdown. Format: {"course":"Hippodrome R1C3","depart":"14h30","chevaux":[{"num":1,"nom":"NOM","jockey":"Nom","forme":"1-2-3","score":85,"cote":"3.2","avis":"commentaire"}],"tierce":[3,7,1],"quarte":[3,7,1,5],"quinte":[3,7,1,5,9],"conseil":"conseil"}. Trie par score décroissant.`;
+      const resp=await fetch(PROXY,{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-5",max_tokens:1000,system:SYSTEM,
+          messages:[{role:"user",content:[
+            {type:"document",source:{type:"base64",media_type:"application/pdf",data:base64}},
+            {type:"text",text:"Analyse ce programme PMU en JSON."}
+          ]}]
+        })
+      });
+      await animateProgress(70,95,"Génération des pronostics...");
+      const data=await resp.json();
+      const raw=data.content?.find(b=>b.type==="text")?.text||"";
+      const parsed=JSON.parse(raw.replace(/```json|```/g,"").trim());
+      setAiResult(parsed);
+      const top=(parsed.chevaux||[]).slice(0,3).map(h=>`#${h.num} ${h.nom}`).join(", ");
+      setMessages([{role:"ai",text:`🐴 Programme analysé : ${parsed.course} — ${parsed.depart}\nFavoris : ${top}\nPosez vos questions !`}]);
+    }catch(err){
+      setAiResult({error:"Impossible d'analyser ce PDF. Vérifiez que c'est un programme PMU officiel."});
+    }
+    await animateProgress(95,100,"Terminé !");
+    setAnalyzing(false);setPdfLoaded(true);
+  },[animateProgress]);
+
+  const sendChat=async()=>{
+    if(!chatInput.trim()||chatLoading)return;
+    const userMsg=chatInput.trim();setChatInput("");
+    setMessages(prev=>[...prev,{role:"user",text:userMsg}]);setChatLoading(true);
+    try{
+      const horses=aiResult?.chevaux||DEMO_HORSES.map(h=>({num:h.num,nom:h.name,forme:h.forme,cote:h.cote,score:h.score}));
+      const resp=await fetch(PROXY,{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+          model:"claude-sonnet-4-5",max_tokens:1000,
+          system:`Tu es PMU Expert CI. Course: ${aiResult?.course||"Longchamp R1C3"} — ${aiResult?.depart||"14h30"}. Chevaux: ${horses.map(h=>`#${h.num} ${h.nom} (score:${h.score}%,cote:×${h.cote})`).join(", ")}. Tiercé: ${(aiResult?.tierce||[3,7,1]).join("-")}. Réponds en français avec des emojis 🐴.`,
+          messages:messages.slice(-6).map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text})).concat([{role:"user",content:userMsg}])
+        })
+      });
+      const data=await resp.json();
+      setMessages(prev=>[...prev,{role:"ai",text:data.content?.find(b=>b.type==="text")?.text||"Désolé, erreur."}]);
+    }catch{setMessages(prev=>[...prev,{role:"ai",text:"❌ Erreur de connexion."}]);}
+    finally{setChatLoading(false);}
+  };
+
+  return(
+    <div>
+      <div className="bg-grid"/><div className="bg-glow glow1"/><div className="bg-glow glow2"/>
+      <div className="container">
+        <div className="header">
+          <div className="logo-block">
+            <div className="logo-icon">🐴</div>
+            <div><div className="logo-text">PMU EXPERT CI</div><div className="logo-sub">Intelligence Artificielle</div></div>
+          </div>
+          <div className="badge-live"><div className="dot-pulse"/>LIVE</div>
+        </div>
+
+        <div className="quick-links">
+          {[{icon:"🐴",name:"PMU.fr",url:"https://www.pmu.fr/turf/"},{icon:"🇨🇮",name:"LONACI",url:"https://www.lonaci.ci/pmu/"},{icon:"💻",name:"PMU CI",url:"https://pmu.lonacionline.ci/mobile/"},{icon:"📊",name:"Turf-FR",url:"https://www.turf-fr.com/programmes-courses"},{icon:"🌐",name:"Zeturf",url:"https://www.zeturf.fr/fr/programme-et-pronostics"}].map(l=>(
+            <a key={l.name} href={l.url} target="_blank" rel="noopener noreferrer" className="quick-link">
+              <span className="ql-icon">{l.icon}</span><span className="ql-name">{l.name}</span><span className="ql-arrow">↗</span>
+            </a>
+          ))}
+        </div>
+
+        <div className="section" style={{paddingTop:14}}>
+          <div className="stats-row">
+            <div className="stat-box"><div className="stat-val">68%</div><div className="stat-lbl">Réussite</div></div>
+            <div className="stat-box"><div className="stat-val">247</div><div className="stat-lbl">Pronostics</div></div>
+            <div className="stat-box"><div className="stat-val">+31%</div><div className="stat-lbl">ROI Mois</div></div>
+          </div>
+        </div>
+
+        <nav className="nav">
+          {[{id:"analyse",label:"📄 PDF"},{id:"pronostics",label:"🔮 Pronostics"},{id:"paris",label:"🎯 Paris"},{id:"ia",label:"🤖 IA"},{id:"taux",label:"📊 Taux"},{id:"chat",label:"💬 Chat"},{id:"liens",label:"🔗 Liens"}].map(t=>(
+            <button key={t.id} className={`nav-btn${tab===t.id?" active":""}`} onClick={()=>setTab(t.id)}>{t.label}</button>
+          ))}
+        </nav>
+
+        {tab==="analyse"&&(
+          <div className="section">
+            <div className="section-title">📄 Analyse de Cours</div>
+            {!pdfLoaded&&!analyzing&&(
+              <div className={`upload-zone${dragOver?" drag":""}`}
+                onClick={()=>fileRef.current?.click()}
+                onDragOver={(e)=>{e.preventDefault();setDragOver(true);}}
+                onDragLeave={()=>setDragOver(false)}
+                onDrop={(e)=>{e.preventDefault();setDragOver(false);handleFile(e.dataTransfer.files[0]);}}>
+                <input ref={fileRef} type="file" accept=".pdf" style={{display:"none"}} onChange={e=>handleFile(e.target.files[0])}/>
+                <div className="upload-icon">📋</div>
+                <div className="upload-title">Importer le programme PMU</div>
+                <div className="upload-hint">Glissez ou tapez pour choisir un PDF</div>
+              </div>
+            )}
+            {analyzing&&(
+              <div className="card">
+                <div style={{fontSize:13,marginBottom:8}}>🔍 <strong>{pdfName}</strong></div>
+                <div className="progress-bar"><div className="progress-fill" style={{width:`${progress}%`}}/></div>
+                <div style={{fontSize:11,color:"var(--muted)",marginTop:4}}>{analyzeStep}</div>
+              </div>
+            )}
+            {pdfLoaded&&aiResult&&!aiResult.error&&(
+              <>
+                <div className="card" style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px"}}>
+                  <span style={{fontSize:20}}>✅</span>
+                  <div><div style={{fontSize:13,fontWeight:600}}>{aiResult.course}</div><div style={{fontSize:11,color:"var(--muted)"}}>{aiResult.chevaux?.length||0} chevaux · {aiResult.depart}</div></div>
+                  <button onClick={()=>{setPdfLoaded(false);setPdfName("");setAiResult(null);}} style={{marginLeft:"auto",background:"none",border:"1px solid var(--border)",borderRadius:8,color:"var(--muted)",padding:"4px 10px",fontSize:11,cursor:"pointer"}}>Changer</button>
+                </div>
+                <div className="coupon-box">
+                  <div className="coupon-title">🏆 COUPON RECOMMANDÉ</div>
+                  {(aiResult.quinte||aiResult.quarte||aiResult.tierce||[]).map((num,i)=>{
+                    const h=aiResult.chevaux?.find(c=>c.num===num);
+                    return(<div className="coupon-row" key={num}><span style={{color:"var(--muted)",fontSize:11}}>{["1er","2ème","3ème","4ème","5ème"][i]}</span><span style={{fontWeight:600,fontSize:13}}>#{num} {h?.nom||"—"}</span><span className="coupon-num">×{h?.cote||"—"}</span></div>);
+                  })}
+                  {aiResult.conseil&&<div style={{marginTop:10,fontSize:11,color:"var(--gold-light)",fontStyle:"italic"}}>💡 {aiResult.conseil}</div>}
+                </div>
+                {(aiResult.chevaux||[]).map((h,i)=>(
+                  <div className={`horse-card${i<3?" top":""}`} key={h.num}>
+                    <div className={`horse-num${i<3?" top-num":""}`}>{h.num}</div>
+                    <div className="horse-info"><div className="horse-name">{h.nom}</div><div className="horse-detail">{h.jockey} · {h.forme}</div>{h.avis&&<div style={{fontSize:10,color:"var(--gold-light)",marginTop:2}}>{h.avis}</div>}</div>
+                    <div className="horse-score"><div className="horse-pct">{h.score}%</div><div className="horse-cote">×{h.cote}</div></div>
+                  </div>
+                ))}
+              </>
+            )}
+            {pdfLoaded&&aiResult?.error&&(
+              <div className="card" style={{borderColor:"var(--red)",textAlign:"center",padding:20}}>
+                <div style={{fontSize:24,marginBottom:8}}>⚠️</div>
+                <div style={{fontSize:13,color:"var(--red)",marginBottom:8}}>{aiResult.error}</div>
+                <button onClick={()=>{setPdfLoaded(false);setPdfName("");setAiResult(null);}} style={{background:"var(--dark4)",border:"1px solid var(--border)",borderRadius:8,color:"var(--text)",padding:"8px 16px",fontSize:12,cursor:"pointer"}}>Réessayer</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab==="pronostics"&&(
+          <div className="section">
+            <div className="section-title">🔮 Pronostics du Jour</div>
+            <div className="card" style={{marginBottom:10,padding:"10px 14px",display:"flex",justifyContent:"space-between"}}>
+              <div><div style={{fontSize:12,color:"var(--muted)"}}>Course</div><div style={{fontSize:14,fontWeight:700}}>{aiResult?.course||"Longchamp · R1C3"}</div></div>
+              <div style={{textAlign:"right"}}><div style={{fontSize:12,color:"var(--muted)"}}>Départ</div><div style={{fontSize:14,fontWeight:700,color:"var(--gold)"}}>{aiResult?.depart||"14h30"}</div></div>
+            </div>
+            {(aiResult?.chevaux||DEMO_HORSES.map(h=>({num:h.num,nom:h.name,jockey:h.jockey,forme:h.forme,score:h.score,cote:h.cote}))).map((h,i)=>(
+              <div className={`horse-card${i<3?" top":""}`} key={h.num}>
+                <div className={`horse-num${i<3?" top-num":""}`}>{h.num}</div>
+                <div className="horse-info"><div className="horse-name">{h.nom||h.name}</div><div className="horse-detail">{h.jockey} · {h.forme}</div></div>
+                <div className="horse-score"><div className="horse-pct">{h.score}%</div><div className="horse-cote">×{h.cote}</div></div>
+              </div>
+            ))}
+            <div className="coupon-box" style={{marginTop:4}}>
+              <div className="coupon-title">📌 TIERCÉ CONSEILLÉ</div>
+              <div style={{fontFamily:"monospace",fontSize:18,color:"var(--gold-light)",letterSpacing:3}}>{(aiResult?.tierce||[3,7,1]).join(" — ")}</div>
+              <div style={{fontSize:11,color:"var(--muted)",marginTop:8}}>Confiance IA : 87% · Rapport ×12 à ×18</div>
+            </div>
+          </div>
+        )}
+
+        {tab==="paris"&&(
+          <div className="section">
+            <div className="section-title">🎯 Types de Paris PMU</div>
+            <div className="paris-grid">
+              {PARIS_TYPES.map(p=>(
+                <div key={p.id} className={`paris-card${selectedParis.includes(p.id)?" selected":""}`} onClick={()=>setSelectedParis(prev=>prev.includes(p.id)?prev.filter(x=>x!==p.id):[...prev,p.id])}>
+                  <div className="paris-name">{p.name}</div><div className="paris-mise">{p.mise}</div>
+                  <div style={{fontSize:11,color:"var(--muted)",marginTop:3}}>{p.desc}</div>
+                  <div className={`paris-tag ${p.tagCls}`}>{p.tag}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab==="ia"&&(
+          <div className="section">
+            <div className="section-title">🤖 Comparatif IA</div>
+            <div className="card">
+              {IA_MODELS.map(ia=>(
+                <div className="ia-row" key={ia.name}>
+                  <div className="ia-avatar" style={{background:`${ia.col}20`}}>{ia.icon}</div>
+                  <div className="ia-info"><div className="ia-name">{ia.name}</div><div className="ia-sel">{ia.sel}</div></div>
+                  <div style={{textAlign:"right"}}><div className="ia-conf-val" style={{color:ia.col}}>{ia.conf}%</div><div className="ia-conf-bar"><div className="ia-conf-fill" style={{width:`${ia.conf}%`,background:ia.col}}/></div></div>
+                </div>
+              ))}
+            </div>
+            <div className="card" style={{background:"rgba(201,168,76,0.05)"}}>
+              <div style={{fontSize:13,fontWeight:700,color:"var(--gold)",marginBottom:8}}>🤝 Consensus IA</div>
+              <div style={{fontFamily:"monospace",fontSize:18,letterSpacing:4,marginBottom:6}}>{(aiResult?.tierce||[3,7,1]).join(" — ")}</div>
+              <div style={{fontSize:12,color:"var(--muted)"}}>Confiance moyenne : <strong style={{color:"var(--gold-light)"}}>79%</strong></div>
+            </div>
+          </div>
+        )}
+
+        {tab==="taux"&&(
+          <div className="section">
+            <div className="section-title">📊 Taux de Réussite</div>
+            <div className="card">
+              {TAUX_DATA.map(t=>(
+                <div className="taux-row" key={t.label}>
+                  <div className="taux-label">{t.label}</div>
+                  <div className="taux-bar"><div className="taux-fill" style={{width:`${t.val}%`,background:t.col}}/></div>
+                  <div className="taux-val">{t.val}%</div>
+                </div>
+              ))}
+            </div>
+            <div className="stats-row">
+              <div className="stat-box"><div className="stat-val" style={{color:"var(--green)"}}>+31%</div><div className="stat-lbl">ROI</div></div>
+              <div className="stat-box"><div className="stat-val">168</div><div className="stat-lbl">Gagnés</div></div>
+              <div className="stat-box"><div className="stat-val">79</div><div className="stat-lbl">Perdus</div></div>
+            </div>
+          </div>
+        )}
+
+        {tab==="chat"&&(
+          <div className="section">
+            <div className="section-title">💬 Expert PMU IA</div>
+            <div className="chat-box">
+              <div className="chat-messages">
+                {messages.map((m,i)=>(
+                  <div className={`msg msg-${m.role}`} key={i}>
+                    {m.role==="ai"&&<div className="msg-sender">🐴 PMU Expert CI</div>}
+                    <div className="msg-bubble">{m.text}</div>
+                  </div>
+                ))}
+                {chatLoading&&<div className="msg msg-ai"><div className="msg-sender">🐴 PMU Expert CI</div><div className="msg-bubble"><div className="loading-dots"><span/><span/><span/></div></div></div>}
+                <div ref={chatEndRef}/>
+              </div>
+              <div className="chat-input-row">
+                <input className="chat-input" placeholder="Vos questions pronostics..." value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendChat()}/>
+                <button className="chat-send" onClick={sendChat} disabled={chatLoading||!chatInput.trim()}>➤</button>
+              </div>
+            </div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+              {["Meilleur tiercé ?","Cotes intéressantes ?","Analyse le favori","Mise recommandée ?"].map(q=>(
+                <button key={q} onClick={()=>setChatInput(q)} style={{background:"var(--dark4)",border:"1px solid var(--border)",borderRadius:20,padding:"6px 12px",fontSize:11,color:"var(--muted)",cursor:"pointer"}}>{q}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {tab==="liens"&&(
+          <div className="section">
+            <div className="section-title">🔗 Accès Direct</div>
+            <div className="links-grid">
+              {EXT_LINKS.map(l=>(
+                <a key={l.name} href={l.url} target="_blank" rel="noopener noreferrer" className="ext-link">
+                  <div className="ext-icon">{l.icon}</div>
+                  <div><div className="ext-name">{l.name}</div><div className="ext-desc">{l.desc}</div></div>
+                </a>
+              ))}
+            </div>
+            <div className="card" style={{marginTop:4}}>
+              <div style={{fontSize:13,fontWeight:700,color:"var(--gold)",marginBottom:10}}>📱 Ressources PMU CI</div>
+              {[
+                {icon:"📊",title:"Résultats PMU",desc:"Résultats du jour",url:"https://www.pmu.fr/turf/"},
+                {icon:"📋",title:"Turf-FR",desc:"Programmes gratuits",url:"https://www.turf-fr.com/programmes-courses"},
+                {icon:"🏇",title:"LONACI",desc:"PMU officiel CI",url:"https://www.lonaci.ci/pmu/"},
+                {icon:"💻",title:"LONACI Online",desc:"Paris en ligne CI",url:"https://pmu.lonacionline.ci/mobile/"},
+                {icon:"🌐",title:"Zeturf",desc:"Courses & pronostics",url:"https://www.zeturf.fr/fr/programme-et-pronostics"},
+              ].map(r=>(
+                <a key={r.title} href={r.url} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid var(--border)",textDecoration:"none",color:"var(--text)"}}>
+                  <span style={{fontSize:18}}>{r.icon}</span>
+                  <div><div style={{fontSize:13,fontWeight:600}}>{r.title}</div><div style={{fontSize:11,color:"var(--muted)"}}>{r.desc}</div></div>
+                  <span style={{marginLeft:"auto",color:"var(--muted)",fontSize:16}}>→</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
